@@ -1,11 +1,12 @@
 #!/bin/bash
+##################################################
+## Dmitriy Lazarev (goldlinux) 2022              #
+##################################################
 # pip3 install ffmpeg-normalize
+export LC_ALL=ru_RU.UTF-8
 
 api_key='your_key'
-folderid='your_folder_id'
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-mkdir -p $SCRIPT_DIR/results
+folderid='your_folfer_id'
 
 function recognize {
   curl -q --silent -X POST -H "Authorization: Api-Key $api_key" \
@@ -23,11 +24,16 @@ function normalize {
     mv "$tmp" "$1"
 }
 
-find -name "*.wav" |  while read fl; do
-  normalize "$fl"
-  txt=$(recognize "$fl")
+function process {
+  # normalize "$fl"
+  txt=$(recognize "$1")
   if [ ! -z "$txt" ]; then
-    echo "${txt}"
-    echo "${txt}" >> "${fl}.txt"
+    echo "${fl}: ${txt}"
+    echo "${txt}" > "${1}.txt"
   fi
+}
+
+find -name "*.wav" |  while read fl; do
+  process "$fl" &
+  while [ `ps -ax | grep $(basename "$0") -c` -ge 10 ]; do sleep 0.5; done
 done
