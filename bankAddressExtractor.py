@@ -7,7 +7,7 @@
 
 import requests, json
 resultfile='address.json'
-url='https://belarusbank.by/api/kursExchange'
+url='https://somebank.com/api/kursExchange'
 
 r=requests.get(url).json()
 
